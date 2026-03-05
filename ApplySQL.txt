@@ -1,0 +1,43 @@
+
+USE AdventureWorks2019;
+GO
+
+-- Latest sales order for each customer in Sales.SalesOrderHeader
+SELECT
+    c.CustomerID,
+    soh_latest.SalesOrderID,
+    soh_latest.OrderDate,
+    soh_latest.TotalDue
+FROM Sales.Customer AS c
+CROSS APPLY
+(
+    SELECT TOP (1)
+        h.SalesOrderID,
+        h.OrderDate,
+        h.TotalDue
+    FROM Sales.SalesOrderHeader AS h
+    WHERE h.CustomerID = c.CustomerID
+    ORDER BY h.OrderDate DESC, h.SalesOrderID DESC
+) AS soh_latest
+ORDER BY c.CustomerID;
+
+
+
+SELECT
+    c.CustomerID,
+    c.AccountNumber,
+    last_order.SalesOrderID,
+    last_order.OrderDate,
+    last_order.TotalDue
+FROM Sales.Customer AS c
+OUTER APPLY
+(
+    SELECT TOP (1)
+        h.SalesOrderID,
+        h.OrderDate,
+        h.TotalDue
+    FROM Sales.SalesOrderHeader AS h
+    WHERE h.CustomerID = c.CustomerID
+    ORDER BY h.OrderDate DESC, h.SalesOrderID DESC
+) AS last_order
+ORDER BY c.CustomerID;
